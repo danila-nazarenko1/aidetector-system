@@ -1,0 +1,8 @@
+requests
+python-dotenv
+tqdm
+google-genai
+fastapi
+uvicorn
+redis 
+apscheduler
