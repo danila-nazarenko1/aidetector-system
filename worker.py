@@ -5,9 +5,9 @@ from redis_client import r
 from ai_detector import detect_from_code
 
 
-PROCESSING = "processing"
-DONE = "done"
-ERROR = "error"
+PROCESSING = "PROCESSING"
+DONE = "DONE"
+ERROR = "ERROR"
 
 
 def process_job(job_id: str):
@@ -20,6 +20,7 @@ def process_job(job_id: str):
         return
 
     job = json.loads(data)
+
 
     job["status"] = PROCESSING
     r.set(key, json.dumps(job))
@@ -37,10 +38,16 @@ def process_job(job_id: str):
 
             results[name] = verdict
 
+        if "files" in job:
+            del job["files"]
+
         job["status"] = DONE
         job["verdict"] = results
 
     except Exception as e:
+
+        if "files" in job:
+            del job["files"]
 
         job["status"] = ERROR
         job["error"] = str(e)
