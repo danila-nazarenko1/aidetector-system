@@ -16,7 +16,7 @@ services:
       dockerfile: Dockerfile
     container_name: files-analyzer
     depends_on:
-      redis
+      redis:
         condition: service_started
     env_file:
       - .env
