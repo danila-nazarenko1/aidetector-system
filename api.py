@@ -31,7 +31,7 @@ RECEIVED = "received"
 
 # ===== API =====
 
-@app.post("/analyze")
+@app.post("/api/v1/analyze")
 def analyze(req: AnalyzeRequest):
 
     key = f"job:{req.id}"
@@ -56,7 +56,7 @@ def analyze(req: AnalyzeRequest):
         "message": "Request accepted"
     }
 
-@app.get("/result/{job_id}")
+@app.get("/api/v1/jobs/{job_id}")
 def get_result(job_id: str):
     key = f"job:{job_id}"
     data = r.get(key)

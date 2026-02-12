@@ -1,24 +1,6 @@
 version: '3.9'
 
 services:
-  minio:
-    image: minio/minio:latest
-    container_name: app-minio
-    command: server /data --address ":${MINIO_API_CONTAINER_PORT}" --console-address ":${MINIO_CONSOLE_CONTAINER_PORT}"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    ports:
-      - "${MINIO_API_HOST_PORT}:${MINIO_API_CONTAINER_PORT}"
-      - "${MINIO_CONSOLE_HOST_PORT}:${MINIO_CONSOLE_CONTAINER_PORT}"
-    volumes:
-      - minio_data:/data
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:${MINIO_API_CONTAINER_PORT}/minio/health/live > /dev/null || exit 1"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-
   redis:
     image: redis:latest
     container_name: app-redis
@@ -32,11 +14,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: app-server
+    container_name: files-analyzer
     depends_on:
-      minio:
-        condition: service_healthy
-      redis:
+      redis
         condition: service_started
     env_file:
       - .env
@@ -45,7 +25,6 @@ services:
     volumes:
       - .:/app       # чтобы можно было править код на хосте и видеть изменения
     command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-
 
   scheduler:
     build:
@@ -60,5 +39,4 @@ services:
     command: python scheduler.py
 
 volumes:
-  minio_data:
   redis_data:
