@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   redis:
@@ -9,6 +9,8 @@ services:
     volumes:
       - redis_data:/data
     command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - shared-net
 
   app:
     build:
@@ -21,10 +23,12 @@ services:
     env_file:
       - .env
     ports:
-      - "8000:8000"   
+      - "8000:8000"
     volumes:
-      - .:/app       # чтобы можно было править код на хосте и видеть изменения
+      - .:/app
     command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    networks:
+      - shared-net
 
   scheduler:
     build:
@@ -36,7 +40,13 @@ services:
       - redis
     env_file:
       - .env
-    command: python scheduler.py
+    command: ["python", "scheduler.py"]
+    networks:
+      - shared-net
 
 volumes:
   redis_data:
+
+networks:
+  shared-net:
+    external: true
